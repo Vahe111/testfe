@@ -1,26 +1,38 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <HeaderNav />
+  <router-view></router-view>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+  import HeaderNav from './components/HeaderNav.vue'
+  import axios from 'axios'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  export default {
+    name: 'App',
+    components: {
+      HeaderNav
+    },
+    async created() {
+        try {
+          const response = await axios.get('api/profile', {
+                headers: {
+                    authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            if (response.data.user) {
+              this.$store.dispatch('user', response.data.user)
+            } else {
+              this.$store.dispatch('user', null)
+              this.$router.push('/login')
+            }
+        } catch (err) {
+            this.$store.dispatch('user', null)
+            this.$router.push('/login')
+        }
+    }
   }
-}
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
